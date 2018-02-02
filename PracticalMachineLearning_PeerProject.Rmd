@@ -27,6 +27,7 @@ Week 4 Peer Assignment for Practical Machine Learning
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(caret)
 ```
 
 # Introduction
@@ -43,6 +44,63 @@ to perform barbell lifts correctly and incorrectly in five (5) different
 ways. This project will predict how well the participant did the exercise
 (represented by the classe variable in the data set) from the accelerometer
 data.
+
+# Examine data and preprocess
+
+Load the training and testing data sets and begin exploring.
+
+```{r}
+training <- read.csv("pml-training.csv",
+                     stringsAsFactors=FALSE)
+
+testing <- read.csv("pml-testing.csv",
+                     stringsAsFactors=FALSE)
+
+dim(training)
+
+dim(testing)
+
+str(training)
+
+str(testing)
+```
+
+Two things immediately stand out. First, there are a large number of variables
+(`r ncol(testing)`). Second, many of the variables have a large number of NAs
+and/or a large number of empty strings. Since the two data sets are similar,
+the training set will analysed to reduce the number of variables and then the
+same preprocessing steps applied to the testing set for testing the models
+which predict how well a participant performs the exercise.
+
+The first step is to re-read the training set, making sure that NA character
+strings and empty character strings are interpreted as NA.
+
+```{r}
+training <- read.csv("pml-training.csv",
+                     stringsAsFactors=FALSE,
+                     na.strings=c("NA", ""))
+```
+
+For each column, determine the percentage of NAs in that column and list
+the columns where that percentage exceeds 50%.
+
+```{r}
+NApct <- apply(training, 2, function(x) {
+    round(sum(is.na(x))/nrow(training), 2)
+  })
+NApct[NApct > 0.50]
+```
+
+There are `r nrow(NApct)` variables for which the number of NAs exceeds 50%.
+In fact, the percentage of NAs in these columns is 98%. A high percentage of
+NAs in a predictor provides no information so these variables will be
+removed from the data set.
+
+```{r}
+xformTraining <- training[, NApct <= 0.5]
+
+dim(xformTraining)
+```
 
 # Bibliography
 
