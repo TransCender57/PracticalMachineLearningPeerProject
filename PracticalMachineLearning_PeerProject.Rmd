@@ -1,0 +1,49 @@
+---
+references:
+- id: Velloso2013
+  title: Qualitative activity recognition of weight lifting exercises
+  author:
+  - family: Velloso
+    given: E
+  - family: Bulling
+    given: A
+  - family: Gellersen
+    given: H
+  - family: Ugulino
+    given: W
+  - family: Fuks
+    given: H
+  container-title: Proceedings of 4th Augmented Human International Conference
+  DOI: 10.1145/2459236.2459256
+  publisher: ACM
+  page: 116-123
+  type: article-journal
+  issued:
+    year: 2013
+---
+
+Week 4 Peer Assignment for Practical Machine Learning
+=====================================================
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+This assignment explores data collected from a personal activity monitoring
+device. People regularly quantify how much of an activity they do, but
+rarely to they qualify how well they do it. The analysis below attempts to
+answer that question.
+
+The data for this analysis comes from [Weight Lifting Exercises Dataset](http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har)
+[also see @Velloso2013.] and contains data from accelerometers on the
+belt, forearm, arm, and dumbbell of six (6) participants. They were asked
+to perform barbell lifts correctly and incorrectly in five (5) different
+ways. This project will predict how well the participant did the exercise
+(represented by the classe variable in the data set) from the accelerometer
+data.
+
+# Bibliography
+
+
