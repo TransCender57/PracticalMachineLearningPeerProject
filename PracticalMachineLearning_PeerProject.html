@@ -349,9 +349,41 @@ dim(training)</code></pre>
 <pre class="r"><code>training &lt;- read.csv(&quot;pml-training.csv&quot;,
                      stringsAsFactors=FALSE,
                      na.strings=c(&quot;NA&quot;, &quot;&quot;))</code></pre>
+<p>It was also noted that three (3) of the variables do not contribute to predicting the quality of movement so they will be removed. They are</p>
+<table style="width:47%;">
+<colgroup>
+<col width="20%"></col>
+<col width="26%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Reason for removal</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>X</td>
+<td>This is just the row number</td>
+</tr>
+<tr class="even">
+<td>user_name</td>
+<td>This is the participant’s name</td>
+</tr>
+<tr class="odd">
+<td>cvtd_timestamp</td>
+<td>This is not a factor variable nor a numeric variable but an alphanumeric representation on the times specified in raw_timestamp_part_1 and raw_timestamp_part_2</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>xformTraining &lt;- subset(training,
+                        select=-c(X, user_name, cvtd_timestamp))
+
+dim(xformTraining)</code></pre>
+<pre><code>## [1] 19622   157</code></pre>
 <p>For each column, determine the percentage of NAs in that column and list the columns where that percentage exceeds 50%.</p>
-<pre class="r"><code>NApct &lt;- apply(training, 2, function(x) {
-    round(sum(is.na(x))/nrow(training), 2)
+<pre class="r"><code>NApct &lt;- apply(xformTraining, 2, function(x) {
+    round(sum(is.na(x))/nrow(xformTraining), 2)
   })
 NApct[NApct &gt; 0.50]</code></pre>
 <pre><code>##       kurtosis_roll_belt      kurtosis_picth_belt        kurtosis_yaw_belt 
@@ -423,10 +455,10 @@ NApct[NApct &gt; 0.50]</code></pre>
 ##          var_yaw_forearm 
 ##                     0.98</code></pre>
 <p>There are variables for which the number of NAs exceeds 50%. In fact, the percentage of NAs in these columns is 98%. A high percentage of NAs in a predictor provides no information so these variables will be removed from the data set.</p>
-<pre class="r"><code>xformTraining &lt;- training[, NApct &lt;= 0.5]
+<pre class="r"><code>xformTraining &lt;- xformTraining[, NApct &lt;= 0.5]
 
 dim(xformTraining)</code></pre>
-<pre><code>## [1] 19622    60</code></pre>
+<pre><code>## [1] 19622    57</code></pre>
 </div>
 <div id="bibliography" class="section level1 unnumbered">
 <h1>Bibliography</h1>

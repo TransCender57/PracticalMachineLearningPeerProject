@@ -81,12 +81,28 @@ training <- read.csv("pml-training.csv",
                      na.strings=c("NA", ""))
 ```
 
+It was also noted that three (3) of the variables do not contribute to
+predicting the quality of movement so they will be removed. They are
+
+Variable       | Reason for removal
+-------------- | ------------------
+X              | This is just the row number
+user_name      | This is the participant's name
+cvtd_timestamp | This is not a factor variable nor a numeric variable but an alphanumeric representation on the times specified in raw_timestamp_part_1 and raw_timestamp_part_2
+
+```{r}
+xformTraining <- subset(training,
+                        select=-c(X, user_name, cvtd_timestamp))
+
+dim(xformTraining)
+```
+
 For each column, determine the percentage of NAs in that column and list
 the columns where that percentage exceeds 50%.
 
 ```{r}
-NApct <- apply(training, 2, function(x) {
-    round(sum(is.na(x))/nrow(training), 2)
+NApct <- apply(xformTraining, 2, function(x) {
+    round(sum(is.na(x))/nrow(xformTraining), 2)
   })
 NApct[NApct > 0.50]
 ```
@@ -97,10 +113,11 @@ NAs in a predictor provides no information so these variables will be
 removed from the data set.
 
 ```{r}
-xformTraining <- training[, NApct <= 0.5]
+xformTraining <- xformTraining[, NApct <= 0.5]
 
 dim(xformTraining)
 ```
+
 
 # Bibliography
 
