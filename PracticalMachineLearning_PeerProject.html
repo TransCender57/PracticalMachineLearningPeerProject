@@ -459,6 +459,19 @@ NApct[NApct &gt; 0.50]</code></pre>
 
 dim(xformTraining)</code></pre>
 <pre><code>## [1] 19622    57</code></pre>
+<p>Next, the remaining predictors will be checked for zero- or near-zero-variance and any predictors which have zero- or near-zero-variance will be removed.</p>
+<pre class="r"><code>nzv &lt;- nearZeroVar(xformTraining)
+if (length(nzv) &gt; 0) {
+  xformTraining &lt;- xformTraining[, -nzv]
+  dim(xformTraining)
+}</code></pre>
+<pre><code>## [1] 19622    56</code></pre>
+<p>Check the correlation between the remaining predictors and remove predictors which are highly correlated.</p>
+<pre class="r"><code>corr &lt;- findCorrelation(cor(xformTraining[,-ncol(xformTraining)]))
+xformTraining &lt;- xformTraining[, -corr]
+
+dim(xformTraining)</code></pre>
+<pre><code>## [1] 19622    49</code></pre>
 </div>
 <div id="bibliography" class="section level1 unnumbered">
 <h1>Bibliography</h1>

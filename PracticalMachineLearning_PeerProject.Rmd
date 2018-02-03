@@ -118,6 +118,28 @@ xformTraining <- xformTraining[, NApct <= 0.5]
 dim(xformTraining)
 ```
 
+Next, the remaining predictors will be checked for zero- or
+near-zero-variance and any predictors which have zero- or
+near-zero-variance will be removed.
+
+```{r}
+nzv <- nearZeroVar(xformTraining)
+if (length(nzv) > 0) {
+  xformTraining <- xformTraining[, -nzv]
+  dim(xformTraining)
+}
+```
+
+Check the correlation between the remaining predictors and remove
+predictors which are highly correlated.
+
+```{r}
+corr <- findCorrelation(cor(xformTraining[,-ncol(xformTraining)]))
+xformTraining <- xformTraining[, -corr]
+
+dim(xformTraining)
+```
+
 
 # Bibliography
 
