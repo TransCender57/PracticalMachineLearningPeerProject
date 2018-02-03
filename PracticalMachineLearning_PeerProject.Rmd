@@ -27,6 +27,8 @@ Week 4 Peer Assignment for Practical Machine Learning
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(doMC)
+registerDoMC(cores=2)
 library(caret)
 ```
 
@@ -174,6 +176,29 @@ model_tree <- train(classe ~ ., data=trainSet, method="rpart")
 The best accuracy for the tree model is
 `r round(max(model_tree$results$Accuracy), 4) * 100`%. As this model is
 not very accurate, a random forest model will be considered.
+
+The random forest model will use five-fold cross-validation.
+
+```{r cache=TRUE}
+ctrl <- trainControl(method="cv",
+                     number=5,
+                     allowParallel=TRUE)
+
+model_rf <- train(classe ~ .,
+                       data=trainSet,
+                       method="rf",
+                       prox=TRUE,
+                       trControl=ctrl)
+```
+
+The best accuracy of the random forest model is
+`r round(max(model_rf$results$Accuracy), 4) * 100`%.
+
+```{r}
+pred <- predict(model_rf, testSet)
+cfm <- confusionMatrix(pred, testSet$classe)
+cfm
+```
 
 # Bibliography
 

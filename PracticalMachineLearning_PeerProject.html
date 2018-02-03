@@ -423,6 +423,51 @@ testSet &lt;- xformTraining[-inTrain, ]</code></pre>
 <p>Since we are trying classfy how well the exercise was performed, a tree will used to model the data.</p>
 <pre class="r"><code>model_tree &lt;- train(classe ~ ., data=trainSet, method=&quot;rpart&quot;)</code></pre>
 <p>The best accuracy for the tree model is 66.29%. As this model is not very accurate, a random forest model will be considered.</p>
+<p>The random forest model will use five-fold cross-validation.</p>
+<pre class="r"><code>ctrl &lt;- trainControl(method=&quot;cv&quot;,
+                     number=5,
+                     allowParallel=TRUE)
+
+model_rf &lt;- train(classe ~ .,
+                       data=trainSet,
+                       method=&quot;rf&quot;,
+                       prox=TRUE,
+                       trControl=ctrl)</code></pre>
+<p>The best accuracy of the random forest model is 99.91%.</p>
+<pre class="r"><code>pred &lt;- predict(model_rf, testSet)
+cfm &lt;- confusionMatrix(pred, testSet$classe)
+cfm</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1674    1    0    0    0
+##          B    0 1138    1    0    0
+##          C    0    0 1025    1    0
+##          D    0    0    0  963    0
+##          E    0    0    0    0 1082
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.9995          
+##                  95% CI : (0.9985, 0.9999)
+##     No Information Rate : 0.2845          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9994          
+##  Mcnemar's Test P-Value : NA              
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            1.0000   0.9991   0.9990   0.9990   1.0000
+## Specificity            0.9998   0.9998   0.9998   1.0000   1.0000
+## Pos Pred Value         0.9994   0.9991   0.9990   1.0000   1.0000
+## Neg Pred Value         1.0000   0.9998   0.9998   0.9998   1.0000
+## Prevalence             0.2845   0.1935   0.1743   0.1638   0.1839
+## Detection Rate         0.2845   0.1934   0.1742   0.1636   0.1839
+## Detection Prevalence   0.2846   0.1935   0.1743   0.1636   0.1839
+## Balanced Accuracy      0.9999   0.9995   0.9994   0.9995   1.0000</code></pre>
 </div>
 <div id="bibliography" class="section level1 unnumbered">
 <h1>Bibliography</h1>
