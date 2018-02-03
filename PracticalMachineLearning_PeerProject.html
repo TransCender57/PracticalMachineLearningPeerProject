@@ -124,7 +124,7 @@ $(document).ready(function () {
 </div>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>This assignment explores data collected from a personal activity monitoring device. People regularly quantify how much of an activity they do, but rarely to they qualify how well they do it. The analysis below addresses the latter question.</p>
+<p>This assignment explores data collected from a personal activity monitoring device. People regularly quantify how much of an activity they do, but rarely to they qualify how well they do it. The analysis below addresses the latter.</p>
 <p>The data for this analysis comes from <a href="http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har">Weight Lifting Exercises Dataset</a> <span class="citation">(also see Velloso et al. 2013.)</span> and contains data from accelerometers on the belt, forearm, arm, and dumbbell of six (6) participants. They were asked to perform barbell lifts correctly and incorrectly in five (5) different ways. This project will predict how well the participant did the exercise (represented by the classe variable in the data set) using the accelerometer data.</p>
 </div>
 <div id="examine-data-and-preprocess" class="section level1">
@@ -280,8 +280,8 @@ plyr::count(NApct)</code></pre>
 <pre><code>##      x freq
 ## 1 0.00   57
 ## 2 0.98  100</code></pre>
-<p>There are 100 variables for which the number of NAs exceeds 50%. In fact, the percentage of NAs in these columns is 98%. A high percentage of NAs in a predictor provides no information so these variables will be removed from the training data set.</p>
-<pre class="r"><code>xformTraining &lt;- xformTraining[, NApct &lt;= 0.5]
+<p>There are 100 variables for which the number of NAs is 98%. Such a high percentage of NAs in a predictor provides no information so these variables will be removed from the training data set.</p>
+<pre class="r"><code>xformTraining &lt;- xformTraining[, NApct &lt;= 0.9]
 
 dim(xformTraining)</code></pre>
 <pre><code>## [1] 19622    57</code></pre>
@@ -292,14 +292,14 @@ if (length(nzv) &gt; 0) {
 }
 dim(xformTraining)</code></pre>
 <pre><code>## [1] 19622    56</code></pre>
-<p>Now, check the correlation between the remaining predictors and remove predictors which are highly correlated.</p>
+<p>Now, the correlation will be examined between the remaining predictors and predictors which are highly correlated will be removed.</p>
 <pre class="r"><code>corr &lt;- findCorrelation(cor(xformTraining[,-ncol(xformTraining)]))
 if (length(corr) &gt; 0) {
   xformTraining &lt;- xformTraining[, -corr]
 }
 dim(xformTraining)</code></pre>
 <pre><code>## [1] 19622    49</code></pre>
-<p>Next check the remaining predictors to see if a predictor is a linear combination of other predictors and remove those predictors.</p>
+<p>Next, the remaining predictors will be checked to see if a predictor is a linear combination of other predictors. Any predictors which are linear combinations of other predictors will be removed.</p>
 <pre class="r"><code>lincombos &lt;- findLinearCombos(xformTraining[, -ncol(xformTraining)])
 if (length(lincombos$remove) &gt; 0) {
   xformTraining &lt;- xformTraining[, -lincombos]
@@ -314,7 +314,7 @@ dim(xformTraining)</code></pre>
 inTrain &lt;- createDataPartition(xformTraining$classe, p=0.7, list=FALSE)
 trainSet &lt;- xformTraining[inTrain, ]
 validSet &lt;- xformTraining[-inTrain, ]</code></pre>
-<p>Since we are trying classfy how well the exercise was performed, a tree will used to model the data.</p>
+<p>Since we are trying classify how well the exercise was performed, a tree will used to model the data.</p>
 <pre class="r"><code>model_tree &lt;- train(classe ~ ., data=trainSet, method=&quot;rpart&quot;)</code></pre>
 <p>The best accuracy for the tree model is 66.29%. As this model is not very accurate, a random forest model will be considered.</p>
 <p>The random forest model will use five-fold cross-validation.</p>
@@ -366,10 +366,10 @@ cfm</code></pre>
 ## Detection Rate         0.2845   0.1934   0.1742   0.1636   0.1839
 ## Detection Prevalence   0.2846   0.1935   0.1743   0.1636   0.1839
 ## Balanced Accuracy      0.9999   0.9995   0.9994   0.9995   1.0000</code></pre>
-<p>From the confusion matrix, the 95% confidence interval accuracy ranges from 99.85% to 99.99% with an extremely small p-value.</p>
+<p>From the confusion matrix, the 95% confidence interval accuracy ranges from 99.85% to 99.99% with an extremely small p-value. The expected out-of-sample error is 0.05%.</p>
 </div>
-<div id="bibliography" class="section level1 unnumbered">
-<h1>Bibliography</h1>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
 <div id="refs" class="references">
 <div id="ref-Velloso2013">
 <p>Velloso, E, A Bulling, H Gellersen, W Ugulino, and H Fuks. 2013. “Qualitative Activity Recognition of Weight Lifting Exercises.” <em>Proceedings of 4th Augmented Human International Conference</em>. ACM, 116–23. doi:<a href="https://doi.org/10.1145/2459236.2459256">10.1145/2459236.2459256</a>.</p>

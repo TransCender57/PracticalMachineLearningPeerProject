@@ -37,7 +37,7 @@ library(caret)
 This assignment explores data collected from a personal activity monitoring
 device. People regularly quantify how much of an activity they do, but
 rarely to they qualify how well they do it. The analysis below addresses the
-latter question.
+latter.
 
 The data for this analysis comes from [Weight Lifting Exercises Dataset](http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har)
 [also see @Velloso2013.] and contains data from accelerometers on the
@@ -97,13 +97,12 @@ NApct <- apply(xformTraining, 2, function(x) {
 plyr::count(NApct)
 ```
 
-There are `r length(NApct[NApct > 0.50])` variables for which the number of
-NAs exceeds 50%. In fact, the percentage of NAs in these columns is 98%. A
-high percentage of NAs in a predictor provides no information so these
+There are 100 variables for which the number of NAs is 98%. Such a high
+percentage of NAs in a predictor provides no information so these
 variables will be removed from the training data set.
 
 ```{r}
-xformTraining <- xformTraining[, NApct <= 0.5]
+xformTraining <- xformTraining[, NApct <= 0.9]
 
 dim(xformTraining)
 ```
@@ -120,8 +119,8 @@ if (length(nzv) > 0) {
 dim(xformTraining)
 ```
 
-Now, check the correlation between the remaining predictors and remove
-predictors which are highly correlated.
+Now, the correlation will be examined between the remaining predictors and
+predictors which are highly correlated will be removed.
 
 ```{r}
 corr <- findCorrelation(cor(xformTraining[,-ncol(xformTraining)]))
@@ -131,8 +130,9 @@ if (length(corr) > 0) {
 dim(xformTraining)
 ```
 
-Next, check the remaining predictors to see if a predictor is a linear
-combination of other predictors and remove those predictors.
+Next, the remaining predictors will be checked to see if a predictor is
+a linear combination of other predictors. Any predictors which are linear
+combinations of other predictors will be removed.
 
 ```{r}
 lincombos <- findLinearCombos(xformTraining[, -ncol(xformTraining)])
@@ -154,7 +154,7 @@ trainSet <- xformTraining[inTrain, ]
 validSet <- xformTraining[-inTrain, ]
 ```
 
-Since we are trying classfy how well the exercise was performed, a tree
+Since we are trying classify how well the exercise was performed, a tree
 will used to model the data.
 
 ```{r}
@@ -196,9 +196,9 @@ cfm
 From the confusion matrix, the 95% confidence interval accuracy ranges
 from `r round(as.numeric(cfm$overall['AccuracyLower']), 4) * 100`% to
 `r round(as.numeric(cfm$overall['AccuracyUpper']), 4) * 100`% with
-an extremely small p-value.
+an extremely small p-value. The expected out-of-sample error is
+`r round(mean(predict(model_rf, validSet) != validSet$classe), 4) * 100`%.
 
-
-# Bibliography
+# References
 
 
