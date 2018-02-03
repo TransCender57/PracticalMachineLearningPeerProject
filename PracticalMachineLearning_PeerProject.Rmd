@@ -104,13 +104,13 @@ the columns where that percentage exceeds 50%.
 NApct <- apply(xformTraining, 2, function(x) {
     round(sum(is.na(x))/nrow(xformTraining), 2)
   })
-NApct[NApct > 0.50]
+cols <- length(NApct[NApct > 0.50])
 ```
 
-There are `r nrow(NApct)` variables for which the number of NAs exceeds 50%.
-In fact, the percentage of NAs in these columns is 98%. A high percentage of
+There are `r cols` variables for which the number of NAs exceeds 50%. In
+fact, the percentage of NAs in these columns is 98%. A high percentage of
 NAs in a predictor provides no information so these variables will be
-removed from the data set.
+removed from the training data set.
 
 ```{r}
 xformTraining <- xformTraining[, NApct <= 0.5]
@@ -152,6 +152,28 @@ if (length(lincombos$remove) > 0) {
 dim(xformTraining)
 ```
 
+# Model Building
+
+Now that the training data set has been pre-processed, it will be split
+into a new training set and a test set.
+
+```{r}
+set.seed(1234)
+inTrain <- createDataPartition(xformTraining$classe, p=0.7, list=FALSE)
+trainSet <- xformTraining[inTrain, ]
+testSet <- xformTraining[-inTrain, ]
+```
+
+Since we are trying classfy how well the exercise was performed, a tree
+will used to model the data.
+
+```{r}
+model_tree <- train(classe ~ ., data=trainSet, method="rpart")
+```
+
+The best accuracy for the tree model is
+`r round(max(model_tree$results$Accuracy), 4) * 100`%. As this model is
+not very accurate, a random forest model will be considered.
 
 # Bibliography
 
