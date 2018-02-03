@@ -36,46 +36,34 @@ library(caret)
 
 This assignment explores data collected from a personal activity monitoring
 device. People regularly quantify how much of an activity they do, but
-rarely to they qualify how well they do it. The analysis below attempts to
-answer that question.
+rarely to they qualify how well they do it. The analysis below addresses the
+latter question.
 
 The data for this analysis comes from [Weight Lifting Exercises Dataset](http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har)
 [also see @Velloso2013.] and contains data from accelerometers on the
 belt, forearm, arm, and dumbbell of six (6) participants. They were asked
 to perform barbell lifts correctly and incorrectly in five (5) different
 ways. This project will predict how well the participant did the exercise
-(represented by the classe variable in the data set) from the accelerometer
+(represented by the classe variable in the data set) using the accelerometer
 data.
 
 # Examine data and preprocess
 
-Load the training and testing data sets and begin exploring.
+Load the training data set and begin exploring.
 
 ```{r}
 training <- read.csv("pml-training.csv",
                      stringsAsFactors=FALSE)
 
-testing <- read.csv("pml-testing.csv",
-                     stringsAsFactors=FALSE)
-
-dim(training)
-
-dim(testing)
-
 str(training)
-
-str(testing)
 ```
 
 Two things immediately stand out. First, there are a large number of variables
-(`r ncol(testing)`). Second, many of the variables have a large number of NAs
-and/or a large number of empty strings. Since the two data sets are similar,
-the training set will analysed to reduce the number of variables and then the
-same preprocessing steps applied to the testing set for testing the models
-which predict how well a participant performs the exercise.
+(`r ncol(training)`). Second, many of the variables have a large number of NAs
+and/or empty strings.
 
-The first step is to re-read the training set, making sure that NA character
-strings and empty character strings are interpreted as NA.
+The first step is to re-read the training set, making sure that NA values
+and empty character strings are interpreted as NA.
 
 ```{r}
 training <- read.csv("pml-training.csv",
@@ -99,20 +87,20 @@ xformTraining <- subset(training,
 dim(xformTraining)
 ```
 
-For each column, determine the percentage of NAs in that column and list
-the columns where that percentage exceeds 50%.
+For each column, determine the percentage of NAs in that column and then
+summarise the percentages.
 
 ```{r}
 NApct <- apply(xformTraining, 2, function(x) {
     round(sum(is.na(x))/nrow(xformTraining), 2)
   })
-cols <- length(NApct[NApct > 0.50])
+plyr::count(NApct)
 ```
 
-There are `r cols` variables for which the number of NAs exceeds 50%. In
-fact, the percentage of NAs in these columns is 98%. A high percentage of
-NAs in a predictor provides no information so these variables will be
-removed from the training data set.
+There are `r length(NApct[NApct > 0.50])` variables for which the number of
+NAs exceeds 50%. In fact, the percentage of NAs in these columns is 98%. A
+high percentage of NAs in a predictor provides no information so these
+variables will be removed from the training data set.
 
 ```{r}
 xformTraining <- xformTraining[, NApct <= 0.5]
@@ -132,7 +120,7 @@ if (length(nzv) > 0) {
 dim(xformTraining)
 ```
 
-Check the correlation between the remaining predictors and remove
+Now, check the correlation between the remaining predictors and remove
 predictors which are highly correlated.
 
 ```{r}
@@ -143,8 +131,8 @@ if (length(corr) > 0) {
 dim(xformTraining)
 ```
 
-Now check the predictors to see if a predictor is a linear combination of
-other predictors and remove those predictors.
+Next, check the remaining predictors to see if a predictor is a linear
+combination of other predictors and remove those predictors.
 
 ```{r}
 lincombos <- findLinearCombos(xformTraining[, -ncol(xformTraining)])
@@ -156,14 +144,14 @@ dim(xformTraining)
 
 # Model Building
 
-Now that the training data set has been pre-processed, it will be split
-into a new training set and a test set.
+Now that the training data set has been pre-processed to reduce the number
+of predictors, it will be split into a new training set and a validation set.
 
 ```{r}
 set.seed(1234)
 inTrain <- createDataPartition(xformTraining$classe, p=0.7, list=FALSE)
 trainSet <- xformTraining[inTrain, ]
-testSet <- xformTraining[-inTrain, ]
+validSet <- xformTraining[-inTrain, ]
 ```
 
 Since we are trying classfy how well the exercise was performed, a tree
@@ -194,11 +182,22 @@ model_rf <- train(classe ~ .,
 The best accuracy of the random forest model is
 `r round(max(model_rf$results$Accuracy), 4) * 100`%.
 
+# Cross Validation
+
+Using the random forest model from above, the validation set (validSet)
+will be used to cross-validate the model.
+
 ```{r}
-pred <- predict(model_rf, testSet)
-cfm <- confusionMatrix(pred, testSet$classe)
+pred <- predict(model_rf, validSet)
+cfm <- confusionMatrix(pred, validSet$classe)
 cfm
 ```
+
+From the confusion matrix, the 95% confidence interval accuracy ranges
+from `r round(as.numeric(cfm$overall['AccuracyLower']), 4) * 100`% to
+`r round(as.numeric(cfm$overall['AccuracyUpper']), 4) * 100`% with
+an extremely small p-value.
+
 
 # Bibliography
 
