@@ -126,8 +126,8 @@ near-zero-variance will be removed.
 nzv <- nearZeroVar(xformTraining)
 if (length(nzv) > 0) {
   xformTraining <- xformTraining[, -nzv]
-  dim(xformTraining)
 }
+dim(xformTraining)
 ```
 
 Check the correlation between the remaining predictors and remove
@@ -135,8 +135,20 @@ predictors which are highly correlated.
 
 ```{r}
 corr <- findCorrelation(cor(xformTraining[,-ncol(xformTraining)]))
-xformTraining <- xformTraining[, -corr]
+if (length(corr) > 0) {
+  xformTraining <- xformTraining[, -corr]
+}
+dim(xformTraining)
+```
 
+Now check the predictors to see if a predictor is a linear combination of
+other predictors and remove those predictors.
+
+```{r}
+lincombos <- findLinearCombos(xformTraining[, -ncol(xformTraining)])
+if (length(lincombos$remove) > 0) {
+  xformTraining <- xformTraining[, -lincombos]
+}
 dim(xformTraining)
 ```
 
